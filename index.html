@@ -1,0 +1,820 @@
+<title>yavendió! — Calculadora de ROI</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --plum500: #31162F;
+    --plum400: #6A2F65;
+    --plum300: #8D3F87;
+    --plum200: #AB84C8;
+    --plum100: #E5DCEF;
+    --ind500:  #2A396B;
+    --ind400:  #3A4E92;
+    --ind300:  #6D81C5;
+    --ind200:  #B6C0E2;
+    --ind100:  #EDF1F8;
+    --yel300:  #F2E876;
+    --yel200:  #F6F0A4;
+    --yel100:  #FBF8D2;
+    --st900:   #1C1917;
+    --st700:   #44403C;
+    --st500:   #78716C;
+    --st200:   #E7E5E4;
+    --st100:   #F5F5F4;
+    --st50:    #FAFAF9;
+    --font: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+    --radius: 12px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--st50);
+    color: var(--st900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--plum500);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--yel300);
+    flex-shrink: 0;
+  }
+  .logo-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .logo-text {
+    font-family: var(--font);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--yel300);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .header-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--plum200);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+    max-width: 1080px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 28px 24px 32px;
+    align-items: start;
+  }
+
+  /* ── INPUT PANEL ── */
+  .inputs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--st200);
+    box-shadow: 0 1px 6px rgba(49,22,47,0.06);
+  }
+
+  .card-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--yel300);
+    color: var(--plum500);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--plum500);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* Plan cards */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .plan-card {
+    border: 2px solid var(--st200);
+    border-radius: 10px;
+    padding: 14px 14px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .plan-card:hover { border-color: var(--plum300); }
+  .plan-card.active {
+    border-color: var(--plum400);
+    background: linear-gradient(135deg, #F9F2F8 0%, #F0E8F5 100%);
+  }
+  .plan-check {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 18px; height: 18px;
+    background: var(--plum400);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .plan-check svg { width: 10px; height: 10px; }
+  .plan-card.active .plan-check { display: flex; }
+  .plan-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--st700);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .plan-name em { color: var(--plum400); font-style: normal; }
+  .plan-price {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--plum500);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .plan-price sub { font-size: 12px; font-weight: 500; color: var(--st500); vertical-align: baseline; }
+  .plan-convs { font-size: 11px; color: var(--st500); margin-top: 5px; }
+  .plan-badge {
+    display: inline-block;
+    background: var(--yel300);
+    color: var(--plum500);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-top: 5px;
+  }
+
+  /* Fields */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field + .field { margin-top: 12px; }
+  .field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--st700);
+  }
+  .input-wrap { position: relative; }
+  .input-wrap .prefix {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--st500);
+    pointer-events: none;
+  }
+  .field select,
+  .field input[type="number"] {
+    width: 100%;
+    border: 1.5px solid var(--st200);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--st900);
+    background: #fff;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field input[type="number"] { padding-left: 28px; font-variant-numeric: tabular-nums; }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2378716C' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+    cursor: pointer;
+  }
+  .field select:focus,
+  .field input:focus {
+    border-color: var(--plum300);
+    box-shadow: 0 0 0 3px rgba(141,63,135,0.12);
+  }
+
+  .rate-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--plum400);
+    margin-top: 5px;
+  }
+  .rate-hint-dot {
+    width: 6px; height: 6px;
+    background: var(--yel300);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── RESULTS PANEL ── */
+  .results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+  }
+
+  /* ROI hero card */
+  .roi-card {
+    background: linear-gradient(140deg, var(--plum500) 0%, var(--ind500) 100%);
+    border-radius: 16px;
+    padding: 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(49,22,47,0.28);
+  }
+  .roi-card::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -30px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .roi-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 60px;
+    width: 140px; height: 140px;
+    background: rgba(242,232,118,0.06);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .roi-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--plum200);
+    margin-bottom: 8px;
+  }
+  .roi-number {
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+    color: var(--yel300);
+    letter-spacing: -3px;
+    transition: opacity 0.25s;
+  }
+  .roi-number .roi-x {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--yel200);
+  }
+  .roi-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 12px;
+    line-height: 1.55;
+    max-width: 340px;
+  }
+  .roi-desc strong { color: #fff; }
+  .roi-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+  }
+  .roi-secondary strong { color: var(--yel300); font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--st200);
+    box-shadow: 0 1px 4px rgba(49,22,47,0.05);
+  }
+  .stat-card.highlight {
+    background: var(--ind100);
+    border-color: var(--ind200);
+  }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--st500);
+    margin-bottom: 5px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--plum500);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    transition: opacity 0.2s;
+  }
+  .stat-value.ventas { color: var(--ind400); }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--st500);
+    margin-top: 2px;
+  }
+
+  /* Breakdown card */
+  .breakdown {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    border: 1px solid var(--st200);
+    box-shadow: 0 1px 4px rgba(49,22,47,0.05);
+  }
+  .breakdown-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--st500);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--yel300);
+  }
+  .bd-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--st100);
+    font-variant-numeric: tabular-nums;
+  }
+  .bd-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .bd-label { color: var(--st700); font-weight: 500; }
+  .bd-value { font-weight: 700; color: var(--st900); }
+  .bd-row.total-row { padding-top: 10px; margin-top: 2px; }
+  .bd-row.total-row .bd-label { font-weight: 700; font-size: 14px; color: var(--plum500); }
+  .bd-row.total-row .bd-value { font-size: 16px; color: var(--plum400); }
+
+  /* ── FOOTER ── */
+  .footer-bar {
+    background: var(--yel300);
+    color: var(--plum500);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+
+  /* Plan benefits */
+  .plan-benefits {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--st200);
+    box-shadow: 0 1px 6px rgba(49,22,47,0.06);
+    overflow: hidden;
+  }
+  .benefits-header {
+    background: linear-gradient(135deg, var(--plum500) 0%, var(--ind500) 100%);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .benefits-plan-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--yel300);
+    letter-spacing: 0.02em;
+  }
+  .benefits-price-tag {
+    margin-left: auto;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .benefits-price-tag sub { font-size: 11px; font-weight: 500; color: var(--plum200); vertical-align: baseline; }
+  .benefits-list {
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+  .benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--st700);
+    line-height: 1.4;
+  }
+  .benefit-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--yel300);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .benefit-dot svg { width: 8px; height: 8px; }
+  .benefit-item strong { color: var(--plum500); font-weight: 700; }
+  .benefits-extra {
+    padding: 10px 16px;
+    border-top: 1px solid var(--st100);
+    font-size: 11px;
+    color: var(--st500);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .extra-badge {
+    background: var(--plum100);
+    color: var(--plum400);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .animate { animation: pulse 0.3s ease; }
+  @keyframes pulse {
+    0%   { opacity: 0.6; transform: scale(0.97); }
+    60%  { transform: scale(1.02); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+</style>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-block">
+    <img class="logo-icon"
+      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTS44MDcgMTcuMDgyYy4zNTcuMjMzLjY5LjQwOCAxLjA3LjQ3My43MTEuMTIgMS4zLS4yMTcgMS41OC0uODg2LjA5Ny0uMjMyLS4wMDUtLjQwNC0uMDg0LS41OTEtLjc0LTEuNzM3LTEuNDg0LTMuNDczLTIuMjI1LTUuMjEtLjMyLS43NDgtLjY0My0xLjQ5Ni0uOTU3LTIuMjQ3LS4wNi0uMTQtLjE1OS0uMjctLjEzLS41MDguNDQ4IDAgLjkwNC0uMDEzIDEuMzYuMDA0LjM0LjAxMi43NDgtLjE0NyAxIC4wOC4yMjEuMjAxLjI5Mi41NzYuNDE3Ljg4LjU2MyAxLjM2IDEuMTIgMi43MjMgMS42ODMgNC4wODMuMDY0LjE1NS4wODQuMzQuMjUyLjQ0Mi4xNC0uMTQzLjE4LS4zMzQuMjUtLjUwNS42MzMtMS41MiAxLjI3MS0zLjAzNSAxLjg4LTQuNTY0LjEzMS0uMzMuMjk1LS40NDcuNjQ2LS40MjkuNTgxLjAzMiAxLjE2Ny4wMDkgMS43NDQuMDA5LjA0Ny4yMjktLjA2Ni4zNzYtLjEzLjUzLTEuMTggMi43OTMtMi4zNjIgNS41ODQtMy41NDQgOC4zNzVhNS42ODcgNS42ODcgMCAwIDEtLjY3NyAxLjIyNWMtLjU3Ni43NjQtMS4zMzYgMS4xNzgtMi4yODcgMS4yNS0uODEuMDYtMS41ODUtLjA1LTIuMzA0LS40NDUtLjQyMi0uMjMxLS40MjQtLjI0OS0uMjEyLS42NjYuMjE3LS40MjguNDM5LS44NTUuNjY4LTEuM1ptMTMuNzQ3LTEuNTAzYy0uMDk1LjAxNC0uMTQxLjAwNy0uMTU1LjAyNi0uODA0IDEuMDk1LTIuOTUgMS4xMjItNC4wNDEuNTktMS4wNjYtLjUxOC0xLjU4Ni0xLjU0LTEuMzY0LTIuNzA1LjEzMi0uNjk2LjU0LTEuMTg4IDEuMTY0LTEuNTAyYTQuMTYyIDQuMTYyIDAgMCAxIDEuNzk2LS40MzJjLjY5MS0uMDE1IDEuMzgxLS4wMDYgMi4wNzEtLjAxNC4zNDctLjAwNS40LS4wNjUuMzMtLjM5Ni0uMTI1LS41OTctLjQ4LS45OTUtMS4wNzEtMS4xNDYtLjk1LS4yNDMtMS44NDctLjA1LTIuNzA5LjM3M2EyLjg2MSAyLjg2MSAwIDAgMC0uMzEyLjE4NGMtLjExNi4wNzgtLjE5LjAzOC0uMjQ4LS4wNzJsLS42ODMtMS4zNDNjLS4wNi0uMTE4LS4wMTItLjE5OS4wODUtLjI2LjExNy0uMDcyLjIzNC0uMTQ2LjM1OS0uMjA2YTYuNjk5IDYuNjk5IDAgMCAxIDQuNDg5LS41MmMxLjU0LjM0NCAyLjQyMiAxLjQzNyAyLjQ4OCAzLjA0LjA0MiAxLjAwNC4wMTkgMi4wMTIuMDIzIDMuMDE4LjAwMi42MDctLjAwNyAxLjIxNC4wMDQgMS44MjEuMDA0LjI1Mi0uMDUuMzktLjM0MS4zOC0uNTM1LS4wMTctMS4wNy0uMDA4LTEuNjA1LS4wMDMtLjE5MiAwLS4yODgtLjA3NS0uMjgtLjI3Ni4wMDYtLjE4NiAwLS4zNyAwLS41NTdabS0xLjI2NS0yLjY1MXYuMDE1Yy0uMjkzIDAtLjU4NS0uMDA2LS44NzYuMDAzLS4xMi4wMDQtLjIzOS4wMzUtLjM1Ni4wNjItLjQ3Mi4xMDctLjc1LjQwOC0uNzguODM5LS4wMzMuNDUuMjE1LjgxMy43Ljk2LjYwMi4xODQgMS4xOTMuMTM2IDEuNzQtLjE5My41NDYtLjMzLjczOC0uODMuNjY2LTEuNDU3LS4wMjEtLjE4MS0uMTA3LS4yMzItLjI2OS0uMjMtLjI3NS4wMDQtLjU1IDAtLjgyNSAwWm03LjM1NiAyLjE5NWE5LjE2IDkuMTYgMCAwIDEtLjIxMS0uMDU1Yy0uNDQ4LS4xMjYtLjg5Ny0uMjQ4LTEuMzQ0LS4zOC0uNTQzLS4xNi0uNjEzLS4yOC0uNDcxLS44Mi4zOTItMS40OTIuNzg4LTIuOTgyIDEuMTg0LTQuNDcybDEuNTI2LTUuNzI0Yy4wMTgtLjA2Ny4wMzctLjEzNC4wNTgtLjIuMTM4LS40NjEuMjU4LS41NC43MS0uNDI1LjQ1LjExNi44OTYuMjU0IDEuMzQyLjM4NS41ODIuMTcxLjY0Mi4yNzEuNDg5Ljg1LS44NDggMy4xOTgtMS43IDYuMzk1LTIuNTUgOS41OTMtLjA4LjMtLjE2Ni42LS4yNDcuOTAyLS4wNjIuMjMtLjIuMzU3LS40ODYuMzQ2Wm0uNjUtMi41OWMuMDAzLS4xNjMtLjA5MS0uMjQtLjIxMS0uMjc3YTUwLjI0NSA1MC4yNDUgMCAwIDAtMS4yOS0uMzY4Yy0uMjEtLjA1Ny0uMzE2LjA0OC0uMzY4LjI1MWE4My44IDgzLjggMCAwIDEtLjQ0NCAxLjY1M2MtLjA2LjIxLjAxMi4zMzMuMjE2LjM5MS4zOTcuMTEzLjc5OC4yMTQgMS4xOS4zNDQuMjY0LjA4OC4zODEtLjAwMi40NDUtLjI1NS4xMzUtLjUzNy4yODMtMS4wNy40MjYtMS42MDNsLjAzNS0uMTM2Wk0yMy4xIDQuODMyYy4yNzEuMDUuMzI2LS4xNDIuMzc3LS4zMzMuMDUyLS4xOTcuMDctLjM4Mi0uMTg4LS40NTYtLjQzMS0uMTIzLS44Ni0uMjU2LTEuMjkzLS4zNzItLjIyLS4wNi0uMzE2LjA4Mi0uMzUzLjI3NC0uMDM2LjE4LS4xNC40MDEuMTIuNDg5LjQ0LjE0OS44OS4yNjYgMS4zMzcuMzk4Wm0tMi40MTcgMTEuMjljLS4wNjUuMTM0LS4xMjMuMzAyLS4yMi40NDEtLjIwNC4yOTMtLjIxNS41NTIuMDEzLjg0OC4xMjYuMTYzLjM1Ny4zNTYuMjA1LjU5My0uMTYxLjI1NC0uNDMyLjA4Ni0uNjE2LjAyLS40MTYtLjE1Mi0uNjkyLS4wMS0uOTI4LjMxNGEuMzk1LjM5NSAwIDAgMS0uMDM1LjAzOWMtLjEyLjExNy0uMjE5LjMwNy0uNDIuMjQ4LS4yMjQtLjA2Ny0uMjE1LS4yODktLjIzOC0uNDc4LS4wMTMtLjEwMy0uMDI4LS4yMDgtLjAyMi0uMzExLjAxMi0uMjI1LS4wOTgtLjM1LS4yOTMtLjQzNGEzLjkzNyAzLjkzNyAwIDAgMS0uNTUyLS4yODRjLS4yNDUtLjE1OC0uMjI3LS4zMTUuMDM4LS40NWEuODYuODYgMCAwIDEgLjI0Mi0uMDkyYy40NDItLjA3OC42MzQtLjM1NS42NDctLjc5YS45ODMuOTgzIDAgMCAxIC4wMy0uMjA0Yy4wNzgtLjMwMi4zMTctLjQwMi40NjktLjE2LjM0Mi41NDYuNzYyLjY3IDEuMzQuNDQyLjE2LS4wNjUuMy4wMzYuMzQuMjU4WiIvPjwvc3ZnPg=="
+      alt="ya!">
+    <span class="logo-text">yavendió!</span>
+  </div>
+  <div class="header-title">Calculadora de ROI</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: INPUTS -->
+  <div class="inputs-panel">
+
+    <!-- Plan -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">1</div>
+        <div class="card-title">Elegí tu plan</div>
+      </div>
+      <div class="plan-grid">
+        <div class="plan-card active" id="plan-pro" onclick="selectPlan('pro')">
+          <div class="plan-check">
+            <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="plan-name">ya<em>!</em> Pro</div>
+          <div class="plan-price">$99<sub>&nbsp;/ mes</sub></div>
+          <div class="plan-convs">1,500 conversaciones</div>
+        </div>
+        <div class="plan-card" id="plan-business" onclick="selectPlan('business')">
+          <div class="plan-check">
+            <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="plan-name">ya<em>!</em> Business</div>
+          <div class="plan-price">$349<sub>&nbsp;/ mes</sub></div>
+          <div class="plan-convs">1,500 conversaciones</div>
+          <div class="plan-badge">Recomendado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beneficios del plan -->
+    <div class="plan-benefits" id="plan-benefits"></div>
+
+    <!-- Paquete adicional -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">2</div>
+        <div class="card-title">Conversaciones adicionales</div>
+      </div>
+      <div class="field">
+        <label>Paquete extra (opcional)</label>
+        <select id="pkg-select" onchange="update()">
+          <option value="0|0">Solo las 1,500 del plan base</option>
+          <option value="1000|66">+1,000 conv — $66/mes ($0.066/conv)</option>
+          <option value="2500|160">+2,500 conv — $160/mes ($0.064/conv)</option>
+          <option value="3500|221">+3,500 conv — $221/mes ($0.063/conv)</option>
+          <option value="5000|310">+5,000 conv — $310/mes ($0.062/conv)</option>
+          <option value="8000|488">+8,000 conv — $488/mes ($0.061/conv)</option>
+          <option value="10000|600">+10,000 conv — $600/mes ($0.060/conv)</option>
+          <option value="15000|885">+15,000 conv — $885/mes ($0.059/conv)</option>
+          <option value="30000|1740">+30,000 conv — $1,740/mes ($0.058/conv)</option>
+          <option value="50000|2800">+50,000 conv — $2,800/mes ($0.056/conv)</option>
+          <option value="100000|5000">+100,000 conv — $5,000/mes ($0.050/conv)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Negocio -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">3</div>
+        <div class="card-title">Tu negocio</div>
+      </div>
+      <div class="field">
+        <label>Ticket medio de venta (US$)</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" id="ticket" value="80" min="1" oninput="update()">
+        </div>
+        <div class="rate-hint">
+          <div class="rate-hint-dot"></div>
+          <span id="rate-hint-text">Tasa de conversión: 3% — ticket US$51–250</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Industria</label>
+        <select id="industry" onchange="update()">
+          <option>Productos Belleza y cuidado personal</option>
+          <option>Moda, ropa y accesorios</option>
+          <option>Novedades y productos variados</option>
+          <option>Hogar y decoración</option>
+          <option>Software</option>
+          <option>Tecnología y gadgets</option>
+          <option>Alimentos y bebidas</option>
+          <option>Salud y suplementos</option>
+          <option>Mascotas</option>
+          <option>Educación – cursos</option>
+          <option>Servicios</option>
+          <option>B2B Mayorista</option>
+          <option>Otros</option>
+        </select>
+      </div>
+    </div>
+
+  </div><!-- /inputs-panel -->
+
+  <!-- RIGHT: RESULTS -->
+  <div class="results-panel">
+
+    <!-- Ventas hero -->
+    <div class="roi-card">
+      <div class="roi-eyebrow">Ventas esperadas al mes</div>
+      <div class="roi-number" id="roi-num">—</div>
+      <div class="roi-desc" id="roi-desc">Completá los datos para ver tus ventas estimadas con yavendió!</div>
+      <div class="roi-secondary" id="roi-secondary"></div>
+    </div>
+
+    <!-- Stats grid: fila 1 = ventas + conversaciones | fila 2 = pedidos + tasa -->
+    <div class="stats-grid">
+      <div class="stat-card highlight">
+        <div class="stat-label">Ganancia neta</div>
+        <div class="stat-value ventas" id="s-ventas">—</div>
+        <div class="stat-sub">ventas − inversión</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total conversaciones</div>
+        <div class="stat-value" id="s-convs">1,500</div>
+        <div class="stat-sub">incluidas en el plan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pedidos concretados</div>
+        <div class="stat-value" id="s-pedidos">—</div>
+        <div class="stat-sub">pedidos / mes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tasa de conversión</div>
+        <div class="stat-value" id="s-rate">—</div>
+        <div class="stat-sub">según ticket medio</div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-title">Desglose de inversión mensual</div>
+      <div class="bd-row">
+        <span class="bd-label" id="bd-plan-name">Plan ya! Pro</span>
+        <span class="bd-value" id="bd-plan-price">$99</span>
+      </div>
+      <div class="bd-row" id="bd-pkg-row" style="display:none;">
+        <span class="bd-label" id="bd-pkg-label">Paquete adicional</span>
+        <span class="bd-value" id="bd-pkg-price">—</span>
+      </div>
+      <div class="bd-row total-row">
+        <span class="bd-label">Inversión total</span>
+        <span class="bd-value" id="bd-total">$99</span>
+      </div>
+    </div>
+
+  </div><!-- /results-panel -->
+
+</div><!-- /main -->
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iIzMxMTYyRiIgZD0iTS44MDcgMTcuMDgyYy4zNTcuMjMzLjY5LjQwOCAxLjA3LjQ3My43MTEuMTIgMS4zLS4yMTcgMS41OC0uODg2LjA5Ny0uMjMyLS4wMDUtLjQwNC0uMDg0LS41OTEtLjc0LTEuNzM3LTEuNDg0LTMuNDczLTIuMjI1LTUuMjEtLjMyLS43NDgtLjY0My0xLjQ5Ni0uOTU3LTIuMjQ3LS4wNi0uMTQtLjE1OS0uMjctLjEzLS41MDguNDQ4IDAgLjkwNC0uMDEzIDEuMzYuMDA0LjM0LjAxMi43NDgtLjE0NyAxIC4wOC4yMjEuMjAxLjI5Mi41NzYuNDE3Ljg4LjU2MyAxLjM2IDEuMTIgMi43MjMgMS42ODMgNC4wODMuMDY0LjE1NS4wODQuMzQuMjUyLjQ0Mi4xNC0uMTQzLjE4LS4zMzQuMjUtLjUwNS42MzMtMS41MiAxLjI3MS0zLjAzNSAxLjg4LTQuNTY0LjEzMS0uMzMuMjk1LS40NDcuNjQ2LS40MjkuNTgxLjAzMiAxLjE2Ny4wMDkgMS43NDQuMDA5LjA0Ny4yMjktLjA2Ni4zNzYtLjEzLjUzLTEuMTggMi43OTMtMi4zNjIgNS41ODQtMy41NDQgOC4zNzVhNS42ODcgNS42ODcgMCAwIDEtLjY3NyAxLjIyNWMtLjU3Ni43NjQtMS4zMzYgMS4xNzgtMi4yODcgMS4yNS0uODEuMDYtMS41ODUtLjA1LTIuMzA0LS40NDUtLjQyMi0uMjMxLS40MjQtLjI0OS0uMjEyLS42NjYuMjE3LS40MjguNDM5LS44NTUuNjY4LTEuM1ptMTMuNzQ3LTEuNTAzYy0uMDk1LjAxNC0uMTQxLjAwNy0uMTU1LjAyNi0uODA0IDEuMDk1LTIuOTUgMS4xMjItNC4wNDEuNTktMS4wNjYtLjUxOC0xLjU4Ni0xLjU0LTEuMzY0LTIuNzA1LjEzMi0uNjk2LjU0LTEuMTg4IDEuMTY0LTEuNTAyYTQuMTYyIDQuMTYyIDAgMCAxIDEuNzk2LS40MzJjLjY5MS0uMDE1IDEuMzgxLS4wMDYgMi4wNzEtLjAxNC4zNDctLjAwNS40LS4wNjUuMzMtLjM5Ni0uMTI1LS41OTctLjQ4LS45OTUtMS4wNzEtMS4xNDYtLjk1LS4yNDMtMS44NDctLjA1LTIuNzA5LjM3M2EyLjg2MSAyLjg2MSAwIDAgMC0uMzEyLjE4NGMtLjExNi4wNzgtLjE5LjAzOC0uMjQ4LS4wNzJsLS42ODMtMS4zNDNjLS4wNi0uMTE4LS4wMTItLjE5OS4wODUtLjI2LjExNy0uMDcyLjIzNC0uMTQ2LjM1OS0uMjA2YTYuNjk5IDYuNjk5IDAgMCAxIDQuNDg5LS41MmMxLjU0LjM0NCAyLjQyMiAxLjQzNyAyLjQ4OCAzLjA0LjA0MiAxLjAwNC4wMTkgMi4wMTIuMDIzIDMuMDE4LjAwMi42MDctLjAwNyAxLjIxNC4wMDQgMS44MjEuMDA0LjI1Mi0uMDUuMzktLjM0MS4zOC0uNTM1LS4wMTctMS4wNy0uMDA4LTEuNjA1LS4wMDMtLjE5MiAwLS4yODgtLjA3NS0uMjgtLjI3Ni4wMDYtLjE4NiAwLS4zNyAwLS41NTdabS0xLjI2NS0yLjY1MXYuMDE1Yy0uMjkzIDAtLjU4NS0uMDA2LS44NzYuMDAzLS4xMi4wMDQtLjIzOS4wMzUtLjM1Ni4wNjItLjQ3Mi4xMDctLjc1LjQwOC0uNzguODM5LS4wMzMuNDUuMjE1LjgxMy43Ljk2LjYwMi4xODQgMS4xOTMuMTM2IDEuNzQtLjE5My41NDYtLjMzLjczOC0uODMuNjY2LTEuNDU3LS4wMjEtLjE4MS0uMTA3LS4yMzItLjI2OS0uMjMtLjI3NS4wMDQtLjU1IDAtLjgyNSAwWm03LjM1NiAyLjE5NWE5LjE2IDkuMTYgMCAwIDEtLjIxMS0uMDU1Yy0uNDQ4LS4xMjYtLjg5Ny0uMjQ4LTEuMzQ0LS4zOC0uNTQzLS4xNi0uNjEzLS4yOC0uNDcxLS44Mi4zOTItMS40OTIuNzg4LTIuOTgyIDEuMTg0LTQuNDcybDEuNTI2LTUuNzI0Yy4wMTgtLjA2Ny4wMzctLjEzNC4wNTgtLjIuMTM4LS40NjEuMjU4LS41NC43MS0uNDI1LjQ1LjExNi44OTYuMjU0IDEuMzQyLjM4NS41ODIuMTcxLjY0Mi4yNzEuNDg5Ljg1LS44NDggMy4xOTgtMS43IDYuMzk1LTIuNTUgOS41OTMtLjA4LjMtLjE2Ni42LS4yNDcuOTAyLS4wNjIuMjMtLjIuMzU3LS40ODYuMzQ2Wm0uNjUtMi41OWMuMDAzLS4xNjMtLjA5MS0uMjQtLjIxMS0uMjc3YTUwLjI0NSA1MC4yNDUgMCAwIDAtMS4yOS0uMzY4Yy0uMjEtLjA1Ny0uMzE2LjA0OC0uMzY4LjI1MWE4My44IDgzLjggMCAwIDEtLjQ0NCAxLjY1M2MtLjA2LjIxLjAxMi4zMzMuMjE2LjM5MS4zOTcuMTEzLjc5OC4yMTQgMS4xOS4zNDQuMjY0LjA4OC4zODEtLjAwMi40NDUtLjI1NS4xMzUtLjUzNy4yODMtMS4wNy40MjYtMS42MDNsLjAzNS0uMTM2Wk0yMy4xIDQuODMyYy4yNzEuMDUuMzI2LS4xNDIuMzc3LS4zMzMuMDUyLS4xOTcuMDctLjM4Mi0uMTg4LS40NTYtLjQzMS0uMTIzLS44Ni0uMjU2LTEuMjkzLS4zNzItLjIyLS4wNi0uMzE2LjA4Mi0uMzUzLjI3NC0uMDM2LjE4LS4xNC40MDEuMTIuNDg5LjQ0LjE0OS44OS4yNjYgMS4zMzcuMzk4Wm0tMi40MTcgMTEuMjljLS4wNjUuMTM0LS4xMjMuMzAyLS4yMi40NDEtLjIwNC4yOTMtLjIxNS41NTIuMDEzLjg0OC4xMjYuMTYzLjM1Ny4zNTYuMjA1LjU5My0uMTYxLjI1NC0uNDMyLjA4Ni0uNjE2LjAyLS40MTYtLjE1Mi0uNjkyLS4wMS0uOTI4LjMxNGEuMzk1LjM5NSAwIDAgMS0uMDM1LjAzOWMtLjEyLjExNy0uMjE5LjMwNy0uNDIuMjQ4LS4yMjQtLjA2Ny0uMjE1LS4yODktLjIzOC0uNDc4LS4wMTMtLjEwMy0uMDI4LS4yMDgtLjAyMi0uMzExLjAxMi0uMjI1LS4wOTgtLjM1LS4yOTMtLjQzNGEzLjkzNyAzLjkzNyAwIDAgMS0uNTUyLS4yODRjLS4yNDUtLjE1OC0uMjI3LS4zMTUuMDM4LS40NWEuODYuODYgMCAwIDEgLjI0Mi0uMDkyYy40NDItLjA3OC42MzQtLjM1NS42NDctLjc5YS45ODMuOTgzIDAgMCAxIC4wMy0uMjA0Yy4wNzgtLjMwMi4zMTctLjQwMi40NjktLjE2LjM0Mi41NDYuNzYyLjY3IDEuMzQuNDQyLjE2LS4wNjUuMy4wMzYuMzQuMjU4WiIvPjwvc3ZnPg=="
+      style="width:16px;height:16px;" alt="">
+  <span>yavendió! · Vende con IA tus productos en WhatsApp · yavendio.com</span>
+</div>
+
+<script>
+  const CHECK = `<svg viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5 4-5" stroke="#31162F" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  const plans = {
+    pro: {
+      name: 'ya! Pro', price: 99, base: 1500,
+      benefits: [
+        ['1,500', 'conversaciones / mes'],
+        ['50', 'productos máximo'],
+        ['Módulo', 'órdenes & pedidos'],
+        ['Mensajes', 'masivos básicos'],
+        ['Optimización', 'de ADS con API'],
+        ['Dashboard', 'básico de métricas'],
+        ['Messenger', '& Instagram'],
+        ['1 reunión', 'de set up'],
+      ],
+      extra: '$0.80 / conversación adicional',
+    },
+    business: {
+      name: 'ya! Business', price: 349, base: 1500,
+      benefits: [
+        ['1,500', 'conversaciones / mes'],
+        ['Productos', 'ilimitados'],
+        ['Shopify + ERP', '+ OMS + Logística'],
+        ['Dashboard', 'analítica avanzada'],
+        ['4 horas', 'de asesoría / mes'],
+        ['Analítica', 'avanzada + ROAS'],
+        ['Mensajes', 'masivos avanzados'],
+        ['Optimización', 'de ADS con API'],
+      ],
+      extra: '$0.75 / conversación adicional',
+    },
+  };
+  let current = 'pro';
+
+  function renderBenefits(key) {
+    const p = plans[key];
+    const items = p.benefits.map(([b, l]) =>
+      `<div class="benefit-item"><div class="benefit-dot">${CHECK}</div><span><strong>${b}</strong> ${l}</span></div>`
+    ).join('');
+    document.getElementById('plan-benefits').innerHTML = `
+      <div class="benefits-header">
+        <span class="benefits-plan-name">${p.name}</span>
+        <span class="benefits-price-tag">$${p.price}<sub>&nbsp;/ mes</sub></span>
+      </div>
+      <div class="benefits-list">${items}</div>
+      <div class="benefits-extra">
+        <span class="extra-badge">Extra</span>
+        ${p.extra} fuera del paquete base
+      </div>`;
+  }
+
+  function selectPlan(key) {
+    current = key;
+    document.getElementById('plan-pro').classList.toggle('active', key === 'pro');
+    document.getElementById('plan-business').classList.toggle('active', key === 'business');
+    renderBenefits(key);
+    update();
+  }
+
+  const convRates = {
+    pro:      [ [50, 0.05, '5%'], [250, 0.025, '2.5%'], [Infinity, 0.01,  '1%']  ],
+    business: [ [50, 0.06, '6%'], [250, 0.03,  '3%'],   [Infinity, 0.015, '1.5%'] ],
+  };
+
+  function convRate(ticket, plan) {
+    for (const [limit, r, pct] of convRates[plan]) {
+      if (ticket <= limit) {
+        const range = limit === 50 ? 'hasta US$50' : limit === 250 ? 'US$51–250' : 'mayor a US$250';
+        return { r, label: `Tasa de conversión: ${pct} — ticket ${range}` };
+      }
+    }
+  }
+
+  const fmt    = n => n.toLocaleString('es-PE', { maximumFractionDigits: 0 });
+  const fmtUSD = n => '$' + fmt(n);
+
+  function animEl(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('animate');
+    void el.offsetWidth;
+    el.classList.add('animate');
+  }
+
+  function update() {
+    const plan   = plans[current];
+    const ticket = parseFloat(document.getElementById('ticket').value) || 0;
+    const [pkgC, pkgP] = document.getElementById('pkg-select').value.split('|').map(Number);
+
+    const { r, label } = convRate(ticket, current);
+    document.getElementById('rate-hint-text').textContent = label;
+
+    const totalConvs = plan.base + pkgC;
+    const pedidos    = Math.round(totalConvs * r);
+    const ventas     = pedidos * ticket;
+    const inversion  = plan.price + pkgP;
+    const roi        = inversion > 0 && ticket > 0 ? ventas / inversion : 0;
+
+    // Ventas hero
+    const roiEl = document.getElementById('roi-num');
+    if (ventas > 0) {
+      roiEl.innerHTML = fmtUSD(ventas);
+      const neta = ventas - inversion;
+      document.getElementById('roi-desc').innerHTML =
+        `Sobre una inversión de <strong>${fmtUSD(inversion)}/mes</strong> en yavendió!. Ganancia neta estimada: <strong>${fmtUSD(neta)}/mes</strong>.`;
+      document.getElementById('roi-secondary').innerHTML =
+        `ROI &nbsp;<strong>${roi.toFixed(1)}x</strong>&nbsp; — por cada $1 invertido`;
+    } else {
+      roiEl.textContent = '—';
+      document.getElementById('roi-desc').textContent = 'Completá los datos para ver tus ventas estimadas con yavendió!';
+      document.getElementById('roi-secondary').innerHTML = '';
+    }
+    animEl('roi-num');
+
+    // Stats
+    const neta = ventas - inversion;
+    document.getElementById('s-ventas').textContent  = ventas  > 0 ? fmtUSD(neta)    : '—';
+    document.getElementById('s-pedidos').textContent = pedidos > 0 ? fmt(pedidos)     : '—';
+    document.getElementById('s-convs').textContent   = fmt(totalConvs);
+    document.getElementById('s-rate').textContent    = r > 0 ? (r * 100).toFixed(1) + '%' : '—';
+    animEl('s-ventas'); animEl('s-pedidos');
+
+    // Breakdown
+    document.getElementById('bd-plan-name').textContent  = plan.name;
+    document.getElementById('bd-plan-price').textContent = fmtUSD(plan.price);
+    const pkgRow = document.getElementById('bd-pkg-row');
+    if (pkgC > 0) {
+      pkgRow.style.display = 'flex';
+      document.getElementById('bd-pkg-label').textContent = `+${fmt(pkgC)} conv adicionales`;
+      document.getElementById('bd-pkg-price').textContent = fmtUSD(pkgP);
+    } else {
+      pkgRow.style.display = 'none';
+    }
+    document.getElementById('bd-total').textContent = fmtUSD(inversion);
+  }
+
+  renderBenefits('pro');
+  update();
+</script>
