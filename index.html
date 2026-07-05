@@ -707,9 +707,9 @@
           </div>
         </div>
         <div class="field">
-          <label>CPL — costo por lead (siempre en USD)</label>
+          <label>CPL — costo por lead</label>
           <div class="input-wrap">
-            <span class="prefix">$</span>
+            <span class="prefix" id="ads-cpl-prefix">$</span>
             <input type="number" id="ads-cpl" value="0.29" min="0.01" step="0.01" oninput="update()">
           </div>
         </div>
@@ -728,9 +728,9 @@
           </div>
         </div>
         <div class="field">
-          <label>Costo por conversación de otras IAs (siempre en USD)</label>
+          <label>Costo por conversación de otras IAs</label>
           <div class="input-wrap">
-            <span class="prefix">$</span>
+            <span class="prefix" id="other-conv-prefix">$</span>
             <input type="number" id="other-conv-cost" value="0.01" min="0" step="0.001" oninput="update()">
           </div>
         </div>
@@ -843,11 +843,11 @@
           <tr><td>Ticket promedio</td><td class="ya-col" id="cmp-ticket-ya">—</td><td id="cmp-ticket-other">—</td></tr>
           <tr class="cmp-total"><td>Ventas totales</td><td class="ya-col" id="cmp-sales-ya">—</td><td id="cmp-sales-other">—</td></tr>
           <tr class="cmp-sep"><td colspan="3">Inversión</td></tr>
-          <tr><td>CPL (USD)</td><td class="ya-col" id="cmp-cpl-ya">—</td><td id="cmp-cpl-other">—</td></tr>
+          <tr><td>CPL</td><td class="ya-col" id="cmp-cpl-ya">—</td><td id="cmp-cpl-other">—</td></tr>
           <tr><td>Inversión en pauta</td><td class="ya-col" id="cmp-budget-ya">—</td><td id="cmp-budget-other">—</td></tr>
           <tr><td>Total conversaciones/mes</td><td class="ya-col" id="cmp-convs-ya">—</td><td id="cmp-convs-other">—</td></tr>
           <tr><td>Inversión en plan</td><td class="ya-col" id="cmp-plan-ya">—</td><td id="cmp-plan-other">—</td></tr>
-          <tr><td>Inv. en conversación (USD)</td><td class="ya-col" id="cmp-convcost-ya">—</td><td id="cmp-convcost-other">—</td></tr>
+          <tr><td>Inv. en conversación</td><td class="ya-col" id="cmp-convcost-ya">—</td><td id="cmp-convcost-other">—</td></tr>
           <tr><td>Inversión en IA + plataforma</td><td class="ya-col" id="cmp-iaplat-ya">—</td><td id="cmp-iaplat-other">—</td></tr>
           <tr class="cmp-total"><td>Inversión total (Pauta + IA)</td><td class="ya-col" id="cmp-totalinv-ya">—</td><td id="cmp-totalinv-other">—</td></tr>
           <tr class="cmp-total cmp-highlight"><td>Utilidad</td><td class="ya-col" id="cmp-profit-ya">—</td><td id="cmp-profit-other">—</td></tr>
@@ -948,7 +948,7 @@
   function setCurrency(c) {
     if (c === currency) return;
     const factor = c === 'PEN' ? RATE_PEN : 1 / RATE_PEN;
-    ['ticket', 'ads-budget', 'other-plan'].forEach(id => {
+    ['ticket', 'ads-budget', 'other-plan', 'ads-cpl', 'other-conv-cost'].forEach(id => {
       const el = document.getElementById(id);
       const v = parseFloat(el.value);
       if (!isNaN(v)) el.value = +(v * factor).toFixed(4);
@@ -960,6 +960,8 @@
     document.getElementById('ticket-prefix').textContent = sym;
     document.getElementById('ads-budget-prefix').textContent = sym;
     document.getElementById('other-plan-prefix').textContent = sym;
+    document.getElementById('ads-cpl-prefix').textContent = sym;
+    document.getElementById('other-conv-prefix').textContent = sym;
     update();
   }
 
@@ -1013,8 +1015,10 @@
     const sym = currency === 'PEN' ? 'S/ ' : '$';
     return sym + fmt(val);
   }
-  function fmtUSDrate(usd, decimals) {
-    return '$' + usd.toFixed(decimals);
+  function fmtRate(usd, decimals) {
+    const val = currency === 'PEN' ? usd * RATE_PEN : usd;
+    const sym = currency === 'PEN' ? 'S/ ' : '$';
+    return sym + val.toFixed(decimals);
   }
 
   function animEl(id) {
@@ -1089,10 +1093,10 @@
     if (!adsOn) return;
 
     const budgetUSD    = getUSD('ads-budget');
-    const cplUSD       = parseFloat(document.getElementById('ads-cpl').value) || 0.01;
+    const cplUSD       = getUSD('ads-cpl') || 0.01;
     const otherRate    = (parseFloat(document.getElementById('other-rate').value) || 0) / 100;
     const otherPlanUSD = getUSD('other-plan');
-    const otherConvUSD = parseFloat(document.getElementById('other-conv-cost').value) || 0;
+    const otherConvUSD = getUSD('other-conv-cost');
 
     const visits     = budgetUSD / cplUSD;
     const totalConvs = visits; // cada click a WhatsApp se cuenta como 1 conversación
@@ -1127,16 +1131,16 @@
     document.getElementById('cmp-sales-ya').textContent     = fmtMoney(yaSales);
     document.getElementById('cmp-sales-other').textContent  = fmtMoney(otherSales);
 
-    document.getElementById('cmp-cpl-ya').textContent       = fmtUSDrate(cplUSD, 2);
-    document.getElementById('cmp-cpl-other').textContent    = fmtUSDrate(cplUSD, 2);
+    document.getElementById('cmp-cpl-ya').textContent       = fmtRate(cplUSD, 2);
+    document.getElementById('cmp-cpl-other').textContent    = fmtRate(cplUSD, 2);
     document.getElementById('cmp-budget-ya').textContent    = fmtMoney(budgetUSD);
     document.getElementById('cmp-budget-other').textContent = fmtMoney(budgetUSD);
     document.getElementById('cmp-convs-ya').textContent     = fmt(totalConvs);
     document.getElementById('cmp-convs-other').textContent  = fmt(totalConvs);
     document.getElementById('cmp-plan-ya').textContent      = fmtMoney(plan.price);
     document.getElementById('cmp-plan-other').textContent   = fmtMoney(otherPlanUSD);
-    document.getElementById('cmp-convcost-ya').textContent    = fmtUSDrate(yaConvRate, 3);
-    document.getElementById('cmp-convcost-other').textContent = fmtUSDrate(otherConvUSD, 3);
+    document.getElementById('cmp-convcost-ya').textContent    = fmtRate(yaConvRate, 3);
+    document.getElementById('cmp-convcost-other').textContent = fmtRate(otherConvUSD, 3);
     document.getElementById('cmp-iaplat-ya').textContent    = fmtMoney(yaIAtotal);
     document.getElementById('cmp-iaplat-other').textContent = fmtMoney(otherIAtotal);
     document.getElementById('cmp-totalinv-ya').textContent    = fmtMoney(totalInvYa);
