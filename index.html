@@ -129,23 +129,32 @@
   /* Plan cards */
   .plan-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
   .plan-card {
     border: 2px solid var(--st200);
     border-radius: 10px;
-    padding: 12px 10px 10px;
+    padding: 14px 12px 12px;
     transition: border-color 0.15s, background 0.15s;
     position: relative;
     user-select: none;
+    cursor: pointer;
   }
-  .plan-auto-note {
-    font-size: 10.5px;
+  .plan-card:hover { border-color: var(--plum300); }
+  .plan-usd {
+    font-size: 11px;
     color: var(--st500);
-    text-align: center;
-    margin-top: 10px;
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
   }
+  .pkg-note {
+    font-size: 11px;
+    color: var(--st500);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+  .pkg-note strong { color: var(--plum400); }
   .plan-card.active {
     border-color: var(--plum400);
     background: linear-gradient(135deg, #F9F2F8 0%, #F0E8F5 100%);
@@ -172,7 +181,7 @@
   }
   .plan-name em { color: var(--plum400); font-style: normal; }
   .plan-price {
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 800;
     color: var(--plum500);
     font-variant-numeric: tabular-nums;
@@ -240,6 +249,11 @@
     border-color: var(--plum300);
     box-shadow: 0 0 0 3px rgba(141,63,135,0.12);
   }
+  .field select:disabled {
+    background-color: var(--st100);
+    color: var(--st500);
+    cursor: not-allowed;
+  }
 
   .rate-hint {
     display: flex;
@@ -304,12 +318,13 @@
     margin-bottom: 8px;
   }
   .roi-number {
-    font-size: 80px;
+    font-size: clamp(44px, 6.2vw, 68px);
     font-weight: 800;
-    line-height: 0.9;
+    line-height: 0.95;
     font-variant-numeric: tabular-nums;
     color: var(--yel300);
-    letter-spacing: -3px;
+    letter-spacing: -2px;
+    white-space: nowrap;
     transition: opacity 0.25s;
   }
   .roi-number .roi-x {
@@ -516,30 +531,25 @@
     align-items: center;
     gap: 14px;
   }
-  .currency-toggle {
-    display: flex;
+  .fx-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(255,255,255,0.08);
     border-radius: 8px;
-    padding: 2px;
-  }
-  .curr-btn {
-    border: none;
-    background: transparent;
-    color: var(--plum200);
+    padding: 5px 10px;
     font-size: 11px;
     font-weight: 700;
-    font-family: var(--font);
-    padding: 5px 10px;
-    border-radius: 6px;
-    cursor: pointer;
+    color: var(--plum200);
     letter-spacing: 0.03em;
+    font-variant-numeric: tabular-nums;
   }
-  .curr-btn.active { background: var(--yel300); color: var(--plum500); }
+  .fx-pill strong { color: var(--yel300); }
 
   .fx-note {
-    font-size: 10px;
+    font-size: 10.5px;
     color: var(--st500);
-    margin-top: 4px;
+    margin-top: 6px;
     line-height: 1.4;
   }
 
@@ -637,10 +647,7 @@
   </div>
   <div class="header-right">
     <div class="header-title">Calculadora de ROI</div>
-    <div class="currency-toggle">
-      <button type="button" class="curr-btn active" data-curr="USD" onclick="setCurrency('USD')">USD</button>
-      <button type="button" class="curr-btn" data-curr="PEN" onclick="setCurrency('PEN')">Soles</button>
-    </div>
+    <div class="fx-pill">Precios en soles · <strong>US$1 = S/ 3.40</strong></div>
   </div>
 </div>
 
@@ -657,32 +664,26 @@
         <div class="card-title">Elegí tu plan</div>
       </div>
       <div class="plan-grid">
-        <div class="plan-card active" id="plan-I">
+        <div class="plan-card" id="plan-starter" onclick="selectPlan('starter')">
           <div class="plan-check">
             <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="plan-name">ya<em>!</em> Pro I</div>
-          <div class="plan-price"><span id="price-I">$99</span><sub>&nbsp;/mes</sub></div>
-          <div class="plan-convs" id="convs-I">1,500 conv.</div>
+          <div class="plan-name">ya<em>!</em> Starter</div>
+          <div class="plan-price"><span id="price-starter">S/ 133</span><sub>&nbsp;/mes</sub></div>
+          <div class="plan-usd" id="usd-starter">US$ 39 / mes</div>
+          <div class="plan-convs">500 conv. / mes</div>
         </div>
-        <div class="plan-card" id="plan-II">
+        <div class="plan-card active" id="plan-pro" onclick="selectPlan('pro')">
           <div class="plan-check">
             <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="plan-name">ya<em>!</em> Pro II</div>
-          <div class="plan-price"><span id="price-II">$165</span><sub>&nbsp;/mes</sub></div>
-          <div class="plan-convs" id="convs-II">desde 2,500 conv.</div>
-        </div>
-        <div class="plan-card" id="plan-III">
-          <div class="plan-check">
-            <svg viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="plan-name">ya<em>!</em> Pro III</div>
-          <div class="plan-price"><span id="price-III">$259</span><sub>&nbsp;/mes</sub></div>
-          <div class="plan-convs" id="convs-III">desde 4,000 conv.</div>
+          <div class="plan-name">ya<em>!</em> Pro</div>
+          <div class="plan-price"><span id="price-pro">S/ 337</span><sub>&nbsp;/mes</sub></div>
+          <div class="plan-usd" id="usd-pro">US$ 99 / mes</div>
+          <div class="plan-convs">1,500 conv. / mes</div>
+          <div class="plan-badge">Más popular</div>
         </div>
       </div>
-      <div class="plan-auto-note">El plan se ajusta solo según las conversaciones que elijas abajo ↓</div>
     </div>
 
     <!-- Beneficios del plan -->
@@ -698,6 +699,7 @@
         <label>Paquete extra (opcional)</label>
         <select id="pkg-select" onchange="update()"></select>
       </div>
+      <div class="pkg-note" id="pkg-note" style="display:none;"></div>
     </div>
 
     <!-- Ads -->
@@ -714,15 +716,15 @@
         <div class="field">
           <label>Inversión mensual en pauta</label>
           <div class="input-wrap">
-            <span class="prefix" id="ads-budget-prefix">$</span>
-            <input type="number" id="ads-budget" value="6000" min="0" oninput="update()">
+            <span class="prefix">S/</span>
+            <input type="number" id="ads-budget" value="20000" min="0" oninput="update()">
           </div>
         </div>
         <div class="field">
           <label>CPL — costo por lead</label>
           <div class="input-wrap">
-            <span class="prefix" id="ads-cpl-prefix">$</span>
-            <input type="number" id="ads-cpl" value="0.29" min="0.01" step="0.01" oninput="update()">
+            <span class="prefix">S/</span>
+            <input type="number" id="ads-cpl" value="1.00" min="0.01" step="0.01" oninput="update()">
           </div>
         </div>
         <div class="field">
@@ -735,15 +737,15 @@
         <div class="field">
           <label>Plan mensual de otras IAs</label>
           <div class="input-wrap">
-            <span class="prefix" id="other-plan-prefix">$</span>
-            <input type="number" id="other-plan" value="75" min="0" oninput="update()">
+            <span class="prefix">S/</span>
+            <input type="number" id="other-plan" value="255" min="0" oninput="update()">
           </div>
         </div>
         <div class="field">
           <label>Costo por conversación de otras IAs</label>
           <div class="input-wrap">
-            <span class="prefix" id="other-conv-prefix">$</span>
-            <input type="number" id="other-conv-cost" value="0.01" min="0" step="0.001" oninput="update()">
+            <span class="prefix">S/</span>
+            <input type="number" id="other-conv-cost" value="0.034" min="0" step="0.001" oninput="update()">
           </div>
         </div>
       </div>
@@ -758,10 +760,10 @@
       <div class="field">
         <label>Ticket medio de venta</label>
         <div class="input-wrap">
-          <span class="prefix" id="ticket-prefix">$</span>
-          <input type="number" id="ticket" value="80" min="1" oninput="onTicketInput()">
+          <span class="prefix">S/</span>
+          <input type="number" id="ticket" value="270" min="1" oninput="update()">
         </div>
-        <div class="fx-note" id="fx-note" style="display:none;">Tipo de cambio referencial: US$1 = S/ 3.40. El cobro de tu plan siempre se hace en USD.</div>
+        <div class="fx-note">Tipo de cambio referencial: US$1 = S/ 3.40. El cobro de tu plan siempre se hace en USD.</div>
       </div>
       <div class="field">
         <label>Industria</label>
@@ -784,12 +786,12 @@
       <div class="field">
         <label>Tasa de conversión</label>
         <div class="input-wrap">
-          <input type="number" class="has-suffix" id="conv-rate" value="2.5" min="0" max="100" step="0.1" oninput="onRateInput()">
+          <input type="number" class="has-suffix" id="conv-rate" value="6.5" min="0" max="100" step="0.1" oninput="update()">
           <span class="suffix">%</span>
         </div>
         <div class="rate-hint">
           <div class="rate-hint-dot"></div>
-          <span id="rate-hint-text">Sugerida: 2.5% — ticket US$51–250</span>
+          <span>Promedio de clientes yavendió!: 6.5% — podés ajustarla</span>
         </div>
       </div>
     </div>
@@ -817,7 +819,7 @@
       <div class="stat-card">
         <div class="stat-label">Total conversaciones</div>
         <div class="stat-value" id="s-convs">1,500</div>
-        <div class="stat-sub">incluidas en el plan</div>
+        <div class="stat-sub">plan + paquete extra</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Pedidos concretados</div>
@@ -827,7 +829,7 @@
       <div class="stat-card">
         <div class="stat-label">Tasa de conversión</div>
         <div class="stat-value" id="s-rate">—</div>
-        <div class="stat-sub">según ticket medio</div>
+        <div class="stat-sub">promedio yavendió! 6.5%</div>
       </div>
     </div>
 
@@ -836,7 +838,7 @@
       <div class="breakdown-title">Desglose de inversión mensual</div>
       <div class="bd-row">
         <span class="bd-label" id="bd-plan-name">Plan ya! Pro</span>
-        <span class="bd-value" id="bd-plan-price">$99</span>
+        <span class="bd-value" id="bd-plan-price">S/ 337</span>
       </div>
       <div class="bd-row" id="bd-pkg-row" style="display:none;">
         <span class="bd-label" id="bd-pkg-label">Paquete adicional</span>
@@ -844,7 +846,7 @@
       </div>
       <div class="bd-row total-row">
         <span class="bd-label">Inversión total</span>
-        <span class="bd-value" id="bd-total">$99</span>
+        <span class="bd-value" id="bd-total">S/ 337</span>
       </div>
     </div>
 
@@ -888,17 +890,30 @@
 <script>
   const CHECK = `<svg viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5 4-5" stroke="#31162F" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-  const BASE_PLAN = { price: 99, base: 1500 };
+  // Tipo de cambio referencial fijo. Toda la calculadora se muestra en soles;
+  // los precios de lista del negocio están en USD y se convierten para mostrar.
+  const RATE_PEN = 3.4;
 
-  function tierForTotal(totalConvs) {
-    if (totalConvs <= 1500) return { key: 'I',   name: 'ya! Pro I' };
-    if (totalConvs < 4000)  return { key: 'II',  name: 'ya! Pro II' };
-    return                         { key: 'III', name: 'ya! Pro III' };
-  }
+  // Planes vigentes. `extra` = costo por conversación fuera del paquete base (USD).
+  // Starter no puede comprar paquetes de conversaciones; Pro sí.
+  const PLANS = {
+    starter: { key: 'starter', name: 'ya! Starter', price: 39, base: 500,  extra: 0.10, packages: false },
+    pro:     { key: 'pro',     name: 'ya! Pro',     price: 99, base: 1500, extra: 0.08, packages: true  },
+  };
+  let currentPlan = 'pro';
 
-  function benefitsFor(base) {
-    return [
-      [fmt(base), 'conversaciones / mes'],
+  const BENEFITS = {
+    starter: [
+      ['500', 'conversaciones / mes'],
+      ['10 productos', 'en catálogo'],
+      ['WhatsApp API', 'oficial, Messenger & Instagram'],
+      ['Dashboard', 'básico de métricas'],
+      ['Gestión', 'de órdenes e inventario'],
+      ['Shopify', '+ pasarela de pagos'],
+      ['Copilot', 'asistente (30 msgs/día)'],
+    ],
+    pro: [
+      ['1,500', 'conversaciones / mes'],
       ['Productos', 'ilimitados'],
       ['Módulo', 'órdenes & pedidos'],
       ['Mensajes', 'masivos básicos'],
@@ -906,16 +921,10 @@
       ['Dashboard', 'básico de métricas'],
       ['Messenger', '& Instagram'],
       ['Sesiones grupales', 'de configuración y capacitación'],
-    ];
-  }
-  const PLAN_EXTRA = '$0.80 / conversación adicional';
+    ],
+  };
 
-  const RATE_PEN = 3.4;
-  let currency = 'USD';
-
-  // Tramos de precio ya definidos para el negocio (ancla). El resto de los pasos
-  // del selector se interpolan entre estas anclas para poder ofrecer bloques de
-  // +1,000 conversaciones sin inventar tarifas nuevas.
+  // Paquetes de conversaciones adicionales (solo plan Pro). Escala oficial en USD.
   const priceAnchors = [
     [0,      0],
     [1000,   66],
@@ -924,10 +933,6 @@
     [5000,   310],
     [8000,   488],
     [10000,  600],
-    [15000,  885],
-    [30000,  1740],
-    [50000,  2800],
-    [100000, 5000],
   ];
 
   function priceForExtra(extraConv) {
@@ -946,50 +951,51 @@
     return pLast + (extraConv - cLast) * rate;
   }
 
-  // Pasos del selector: de a 1,000 en el tramo donde se mueve entre Pro I → II → III
-  // y un poco más allá; en volúmenes grandes se usan las anclas ya definidas.
-  const PKG_STEPS = [0, 1000, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 30000, 50000, 100000];
+  // Opciones del selector: exactamente los paquetes de la escala oficial, hasta 10,000.
+  const PKG_STEPS = priceAnchors.map(([c]) => c);
 
   function renderPackageOptions() {
-    const sel = document.getElementById('pkg-select');
+    const plan = PLANS[currentPlan];
+    const sel  = document.getElementById('pkg-select');
+    const note = document.getElementById('pkg-note');
     const prev = sel.value || '0|0';
     sel.innerHTML = PKG_STEPS.map(c => {
-      if (c === 0) return `<option value="0|0">Solo las ${fmt(BASE_PLAN.base)} del plan base</option>`;
+      if (c === 0) return `<option value="0|0">Solo las ${fmt(plan.base)} del plan base</option>`;
       const p = Math.round(priceForExtra(c));
       const perConv = p / c;
-      return `<option value="${c}|${p}">+${fmt(c)} conv — ${fmtMoney(p)}/mes ($${perConv.toFixed(3)}/conv en USD)</option>`;
+      return `<option value="${c}|${p}">+${fmt(c)} conv — ${fmtMoney(p)}/mes · US$${perConv.toFixed(3)}/conv</option>`;
     }).join('');
-    sel.value = prev;
-    if (sel.selectedIndex === -1) sel.selectedIndex = 0;
+    if (plan.packages) {
+      sel.disabled = false;
+      sel.value = prev;
+      if (sel.selectedIndex === -1) sel.selectedIndex = 0;
+      note.style.display = 'none';
+    } else {
+      sel.disabled = true;
+      sel.selectedIndex = 0;
+      note.style.display = 'block';
+      note.innerHTML = `Los paquetes de conversaciones están disponibles en <strong>ya! Pro</strong>. En Starter, cada conversación fuera del plan cuesta <strong>${fmtRate(plan.extra, 2)}</strong> (US$${plan.extra.toFixed(2)}).`;
+    }
   }
 
-  function bestPackageFor(excedente) {
-    if (excedente <= 0) return { c: 0, p: 0 };
-    return { c: excedente, p: priceForExtra(excedente) };
+  // Costo del excedente de conversaciones (sobre el plan) según el plan elegido.
+  function extraCostFor(plan, excedente) {
+    if (excedente <= 0) return { c: 0, p: 0, perConv: 0 };
+    if (!plan.packages) return { c: excedente, p: excedente * plan.extra, perConv: plan.extra };
+    const p = priceForExtra(excedente);
+    return { c: excedente, p, perConv: p / excedente };
   }
 
+  // Los inputs se ingresan en soles; internamente todo se calcula en USD.
   function getUSD(id) {
     const raw = parseFloat(document.getElementById(id).value) || 0;
-    return currency === 'PEN' ? raw / RATE_PEN : raw;
+    return raw / RATE_PEN;
   }
 
-  function setCurrency(c) {
-    if (c === currency) return;
-    const factor = c === 'PEN' ? RATE_PEN : 1 / RATE_PEN;
-    ['ticket', 'ads-budget', 'other-plan', 'ads-cpl', 'other-conv-cost'].forEach(id => {
-      const el = document.getElementById(id);
-      const v = parseFloat(el.value);
-      if (!isNaN(v)) el.value = +(v * factor).toFixed(4);
-    });
-    currency = c;
-    document.querySelectorAll('.curr-btn').forEach(b => b.classList.toggle('active', b.dataset.curr === c));
-    document.getElementById('fx-note').style.display = c === 'PEN' ? 'block' : 'none';
-    const sym = c === 'USD' ? '$' : 'S/';
-    document.getElementById('ticket-prefix').textContent = sym;
-    document.getElementById('ads-budget-prefix').textContent = sym;
-    document.getElementById('other-plan-prefix').textContent = sym;
-    document.getElementById('ads-cpl-prefix').textContent = sym;
-    document.getElementById('other-conv-prefix').textContent = sym;
+  function selectPlan(key) {
+    if (!PLANS[key] || key === currentPlan) return;
+    currentPlan = key;
+    Object.keys(PLANS).forEach(k => document.getElementById('plan-' + k).classList.toggle('active', k === key));
     update();
   }
 
@@ -998,62 +1004,31 @@
     update();
   }
 
-  function renderBenefits(tier, totalConvs, totalPrice) {
-    const items = benefitsFor(totalConvs).map(([b, l]) =>
-      `<div class="benefit-item"><div class="benefit-dot">${CHECK}</div><span><strong>${b}</strong> ${l}</span></div>`
-    ).join('');
+  function renderBenefits(plan, totalConvs, totalPrice) {
+    const items = BENEFITS[plan.key].map(([b, l], i) => {
+      // La primera fila muestra el total de conversaciones (plan + paquete elegido).
+      const bold = i === 0 ? fmt(totalConvs) : b;
+      return `<div class="benefit-item"><div class="benefit-dot">${CHECK}</div><span><strong>${bold}</strong> ${l}</span></div>`;
+    }).join('');
     document.getElementById('plan-benefits').innerHTML = `
       <div class="benefits-header">
-        <span class="benefits-plan-name">${tier.name}</span>
-        <span class="benefits-price-tag">${fmtMoney(totalPrice)}<sub>&nbsp;/ mes</sub></span>
+        <span class="benefits-plan-name">${plan.name}</span>
+        <span class="benefits-price-tag">${fmtMoney(totalPrice)}<sub>&nbsp;/ mes · US$ ${fmt(totalPrice)}</sub></span>
       </div>
       <div class="benefits-list">${items}</div>
       <div class="benefits-extra">
         <span class="extra-badge">Extra</span>
-        ${PLAN_EXTRA} fuera del paquete base
+        ${fmtRate(plan.extra, 2)} (US$${plan.extra.toFixed(2)}) por conversación adicional fuera del paquete base
       </div>`;
   }
 
-  function highlightTier(key) {
-    ['I', 'II', 'III'].forEach(k => document.getElementById('plan-' + k).classList.toggle('active', k === key));
-  }
-
-  const convTiers = [ [50, 0.05, '5%'], [250, 0.025, '2.5%'], [Infinity, 0.01, '1%'] ];
-
-  function suggestedRate(ticket) {
-    for (const [limit, r, pct] of convTiers) {
-      if (ticket <= limit) {
-        const range = limit === 50 ? 'hasta US$50' : limit === 250 ? 'US$51–250' : 'mayor a US$250';
-        return { r, label: `Sugerida: ${pct} — ticket ${range}` };
-      }
-    }
-  }
-
-  let rateManuallySet = false;
-
-  function onTicketInput() {
-    if (!rateManuallySet) {
-      const { r } = suggestedRate(getUSD('ticket'));
-      document.getElementById('conv-rate').value = (r * 100).toFixed(1);
-    }
-    update();
-  }
-
-  function onRateInput() {
-    rateManuallySet = true;
-    update();
-  }
-
+  // Todo se muestra en soles: `fmtMoney` y `fmtRate` reciben USD y convierten.
   const fmt = n => n.toLocaleString('es-PE', { maximumFractionDigits: 0 });
   function fmtMoney(usd) {
-    const val = currency === 'PEN' ? usd * RATE_PEN : usd;
-    const sym = currency === 'PEN' ? 'S/ ' : '$';
-    return sym + fmt(val);
+    return 'S/ ' + fmt(usd * RATE_PEN);
   }
   function fmtRate(usd, decimals) {
-    const val = currency === 'PEN' ? usd * RATE_PEN : usd;
-    const sym = currency === 'PEN' ? 'S/ ' : '$';
-    return sym + val.toFixed(decimals);
+    return 'S/ ' + (usd * RATE_PEN).toFixed(decimals);
   }
 
   function animEl(id) {
@@ -1064,21 +1039,20 @@
   }
 
   function update() {
+    const plan      = PLANS[currentPlan];
     const ticketUSD = getUSD('ticket');
     renderPackageOptions();
     const [pkgC, pkgP] = document.getElementById('pkg-select').value.split('|').map(Number);
 
-    const totalConvs = BASE_PLAN.base + pkgC;
-    const inversion   = BASE_PLAN.price + pkgP;
-    const tier        = tierForTotal(totalConvs);
+    const totalConvs = plan.base + pkgC;
+    const inversion  = plan.price + pkgP;
 
-    document.getElementById('price-I').textContent   = fmtMoney(BASE_PLAN.price);
-    document.getElementById('price-II').textContent  = fmtMoney(BASE_PLAN.price + Math.round(priceForExtra(1000)));
-    document.getElementById('price-III').textContent = fmtMoney(BASE_PLAN.price + Math.round(priceForExtra(2500)));
-    highlightTier(tier.key);
-    renderBenefits(tier, totalConvs, inversion);
+    Object.values(PLANS).forEach(p => {
+      document.getElementById('price-' + p.key).textContent = fmtMoney(p.price);
+      document.getElementById('usd-' + p.key).textContent   = `US$ ${p.price} / mes`;
+    });
+    renderBenefits(plan, totalConvs, inversion);
 
-    document.getElementById('rate-hint-text').textContent = suggestedRate(ticketUSD).label;
     const r = (parseFloat(document.getElementById('conv-rate').value) || 0) / 100;
 
     const pedidos    = Math.round(totalConvs * r);
@@ -1093,7 +1067,7 @@
       document.getElementById('roi-desc').innerHTML =
         `Sobre una inversión de <strong>${fmtMoney(inversion)}/mes</strong> en yavendió!. Ganancia neta estimada: <strong>${fmtMoney(neta)}/mes</strong>.`;
       document.getElementById('roi-secondary').innerHTML =
-        `ROI &nbsp;<strong>${roi.toFixed(1)}x</strong>&nbsp; — por cada $1 invertido`;
+        `ROI &nbsp;<strong>${roi.toFixed(1)}x</strong>&nbsp; — por cada S/ 1 invertido`;
     } else {
       roiEl.textContent = '—';
       document.getElementById('roi-desc').textContent = 'Completá los datos para ver tus ventas estimadas con yavendió!';
@@ -1110,8 +1084,8 @@
     animEl('s-ventas'); animEl('s-pedidos');
 
     // Breakdown
-    document.getElementById('bd-plan-name').textContent  = 'ya! Pro (base)';
-    document.getElementById('bd-plan-price').textContent = fmtMoney(BASE_PLAN.price);
+    document.getElementById('bd-plan-name').textContent  = `Plan ${plan.name} (base)`;
+    document.getElementById('bd-plan-price').textContent = fmtMoney(plan.price);
     const pkgRow = document.getElementById('bd-pkg-row');
     if (pkgC > 0) {
       pkgRow.style.display = 'flex';
@@ -1122,10 +1096,10 @@
     }
     document.getElementById('bd-total').textContent = fmtMoney(inversion);
 
-    updateAds(totalConvs, inversion, ticketUSD);
+    updateAds(plan, totalConvs, inversion, ticketUSD);
   }
 
-  function updateAds(planConvs, planPrice, ticketUSD) {
+  function updateAds(plan, planConvs, planPrice, ticketUSD) {
     const adsOn = document.getElementById('ads-toggle').checked;
     document.getElementById('ads-compare').style.display = adsOn ? 'block' : 'none';
     if (!adsOn) return;
@@ -1148,9 +1122,9 @@
     const otherSales   = otherClients * ticketUSD;
 
     const excedente    = Math.max(0, totalConvs - planConvs);
-    const pkg          = bestPackageFor(excedente);
-    const yaConvRate   = excedente > 0 ? pkg.p / pkg.c : 0;
-    const yaIAtotal     = planPrice + (excedente > 0 ? pkg.p : 0);
+    const pkg          = extraCostFor(plan, excedente);
+    const yaConvRate   = pkg.perConv;
+    const yaIAtotal     = planPrice + pkg.p;
     const otherIAtotal  = otherPlanUSD + otherConvUSD * totalConvs;
 
     const totalInvYa    = budgetUSD + yaIAtotal;
